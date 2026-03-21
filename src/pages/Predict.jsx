@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import api from '../api';
+import html2pdf from 'html2pdf.js';
 
 const getDiseaseInfo = (predictedClass) => {
   const info = {
@@ -113,101 +114,72 @@ function Predict() {
       const colorIndicator = isBenign ? '#10b981' : '#ef4444';
 
       const htmlContent = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Skin Lesion Analysis Report</title>
-          <style>
-            body { font-family: 'Inter', system-ui, sans-serif; color: #1e293b; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 3rem 2rem; }
-            h1 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-top: 0; }
-            .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
-            .patient-info { background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; margin-bottom: 2rem; font-size: 1.1rem; }
-            .result-section { display: flex; gap: 2rem; margin-bottom: 3rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-            .result-details { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-            .disease-name { font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; color: #0f172a; }
-            .confidence-value { font-size: 3rem; font-weight: bold; margin: 0; color: ${colorIndicator}; line-height: 1; }
-            .image-container { flex: 1; text-align: center; }
-            .image-container img { max-width: 100%; max-height: 300px; border-radius: 0.5rem; object-fit: cover; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-            .info-box { background: ${isBenign ? '#ecfdf5' : '#fef2f2'}; border-left: 6px solid ${colorIndicator}; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 0 0.5rem 0.5rem 0; }
-            .info-box.blue { background: #eff6ff; border-left-color: #3b82f6; }
-            h3 { margin-top: 0; color: #0f172a; font-size: 1.25rem; }
-            .footer { margin-top: 4rem; font-size: 0.85rem; color: #64748b; text-align: justify; border-top: 2px solid #e2e8f0; padding-top: 1.5rem; }
-            @media print { body { padding: 0; } .result-section { box-shadow: none; border: 2px solid #e2e8f0; } }
-          </style>
-        </head>
-        <body>
-          <div class="header">
+        <div style="font-family: Arial, Helvetica, sans-serif; color: #1e293b; line-height: 1.6; padding: 20px 30px; background-color: #ffffff;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
             <div>
-              <h1>Skin Lesion Detection System</h1>
-              <p style="margin: 0; color: #64748b; font-size: 1.1rem;">Automated Diagnostic Report</p>
+              <h1 style="color: #0f172a; margin: 0 0 5px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Skin Lesion Detection System</h1>
+              <p style="margin: 0; color: #64748b; font-size: 16px;">Automated Diagnostic Report</p>
             </div>
-            <div style="text-align: right; color: #64748b;">
+            <div style="text-align: right; color: #64748b; font-size: 14px;">
               <p style="margin: 0; font-weight: bold;">Date generated:</p>
               <p style="margin: 0;">${date}</p>
             </div>
           </div>
 
-          <div class="patient-info">
+          <div style="background-color: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; font-size: 18px; color: #0f172a;">
             <strong>Patient Name:</strong> ${userName}
           </div>
 
-          <div class="result-section">
-            <div class="result-details">
-              <p style="margin: 0; color: #64748b; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Detected Condition</p>
-              <p class="disease-name">${result.predicted_class}</p>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 30px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+            <div style="flex: 1; padding-right: 20px;">
+              <p style="margin: 0; color: #64748b; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Detected Condition</p>
+              <p style="font-size: 32px; font-weight: bold; margin: 10px 0; color: #0f172a;">${result.predicted_class}</p>
               
-              <div style="margin: 1.5rem 0;">
-                <p style="margin: 0; color: #64748b; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">AI Confidence Score</p>
-                <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-top: 0.5rem;">
-                  <p class="confidence-value">${result.confidence.toFixed(1)}</p>
-                  <span style="font-size: 1.5rem; color: #64748b; font-weight: bold;">%</span>
+              <div style="margin: 20px 0;">
+                <p style="margin: 0; color: #64748b; font-weight: bold; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">AI Confidence Score</p>
+                <div style="display: flex; align-items: baseline; margin-top: 5px;">
+                  <p style="font-size: 40px; font-weight: bold; margin: 0; color: ${colorIndicator}; line-height: 1;">${result.confidence.toFixed(1)}</p>
+                  <span style="font-size: 24px; color: #64748b; font-weight: bold; margin-left: 5px;">%</span>
                 </div>
               </div>
               
-              <p style="margin: 0; padding: 0.5rem 1rem; background: ${colorIndicator}20; color: ${colorIndicator}; border-radius: 0.25rem; font-weight: bold; width: fit-content;">
+              <p style="margin: 0; padding: 8px 16px; background-color: ${isBenign ? '#d1fae5' : '#fee2e2'}; color: ${colorIndicator}; border-radius: 4px; font-weight: bold; display: inline-block;">
                 STATUS: ${getStatusInfo(result.predicted_class).label}
               </p>
             </div>
-            <div class="image-container">
-              <p style="margin: 0 0 1rem 0; color: #64748b; font-weight: bold; font-size: 0.9rem;">Uploaded Dermoscopic Image</p>
-              <img src="${base64Image}" alt="Dermoscopic Image" />
+            <div style="flex: 1; text-align: center;">
+              <p style="margin: 0 0 10px 0; color: #64748b; font-weight: bold; font-size: 14px;">Uploaded Dermoscopic Image</p>
+              <img src="${base64Image}" alt="Dermoscopic Image" style="max-width: 100%; max-height: 250px; border-radius: 8px; object-fit: cover; border: 1px solid #e2e8f0;" />
             </div>
           </div>
 
-          <h2 style="color: #0f172a; margin-bottom: 1.5rem;">Clinical Information</h2>
-          <div class="info-box">
-            <h3>Caution & Overview</h3>
-            <p style="margin-bottom: 0;">${diseaseInfo.caution}</p>
+          <h2 style="color: #0f172a; margin-bottom: 15px; font-size: 22px;">Clinical Information</h2>
+          <div style="background-color: ${isBenign ? '#ecfdf5' : '#fef2f2'}; border-left: 6px solid ${colorIndicator}; padding: 15px; margin-bottom: 15px; border-radius: 0 8px 8px 0; color: #1e293b;">
+            <h3 style="margin: 0 0 8px 0; color: #0f172a; font-size: 18px;">Caution & Overview</h3>
+            <p style="margin: 0; font-size: 15px;">${diseaseInfo.caution}</p>
           </div>
-          <div class="info-box blue">
-            <h3>Prevention & Recommendations</h3>
-            <p style="margin-bottom: 0;">${diseaseInfo.prevention}</p>
+          <div style="background-color: #eff6ff; border-left: 6px solid #3b82f6; padding: 15px; margin-bottom: 30px; border-radius: 0 8px 8px 0; color: #1e293b;">
+            <h3 style="margin: 0 0 8px 0; color: #0f172a; font-size: 18px;">Prevention & Recommendations</h3>
+            <p style="margin: 0; font-size: 15px;">${diseaseInfo.prevention}</p>
           </div>
 
-          <div class="footer">
+          <div style="margin-top: 40px; font-size: 12px; color: #64748b; border-top: 2px solid #e2e8f0; padding-top: 15px; line-height: 1.5;">
             <strong>IMPORTANT DISCLAIMER:</strong> This report is generated by an artificial intelligence model intended for educational and preliminary screening purposes only. It does not constitute a confirmed medical diagnosis and is not a substitute for professional medical advice, examination, or treatment by a licensed dermatologist or physician. Always seek the advice of a qualified healthcare provider with any questions or concerns regarding a medical condition.
           </div>
-          
-          <script>
-            // Auto open print dialog when users open the downloaded file (optional convenience)
-            // window.onafterprint = window.close;
-            // setTimeout(() => window.print(), 500);
-          </script>
-        </body>
-        </html>
+        </div>
       `;
 
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Skin_Lesion_Report_${userName.replace(/\s+/g, '_')}.html`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const opt = {
+        margin:       0.3,
+        filename:     `Skin_Lesion_Report_${userName.replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      const element = document.createElement('div');
+      element.innerHTML = htmlContent;
+      html2pdf().set(opt).from(element).save();
     };
     reader.readAsDataURL(file);
   };

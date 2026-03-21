@@ -44,7 +44,23 @@ function Register() {
       });
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.email?.[0] || 'Registration failed. Please try again.');
+      let msg = 'Registration failed. Please try again.';
+      if (err.response?.data) {
+        const data = err.response.data;
+        if (data.email) msg = data.email[0];
+        else if (data.password) msg = data.password[0];
+        else if (data.detail) msg = data.detail;
+        else if (typeof data === 'string') msg = data;
+        else msg = Object.values(data).flat()[0] || msg;
+      } else if (err.message) {
+        msg = err.message;
+      }
+      
+      if (typeof msg === 'string' && (msg.toLowerCase().includes('<!doctype') || msg.toLowerCase().includes('<html'))) {
+        msg = 'A server error occurred (e.g. 404/502). Please check the backend connection or API URL.';
+      }
+
+      setError(msg);
     } finally {
       setLoading(false);
     }
