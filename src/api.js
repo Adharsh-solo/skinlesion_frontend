@@ -1,7 +1,11 @@
 import axios from 'axios';
 
+let baseURL = import.meta.env.VITE_API_URL || 'https://skinlesion-classification.onrender.com/api';
+if (baseURL.endsWith('/')) baseURL = baseURL.slice(0, -1);
+if (!baseURL.endsWith('/api')) baseURL += '/api';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://skinlesion-classification.onrender.com/api',
+  baseURL: baseURL,
 });
 
 api.interceptors.request.use(
